@@ -693,7 +693,7 @@ IsUidBlockedFn resolveIsUidNetworkingBlockedFn() {
         // On S/Sv2 this can fail if tethering apex is too old, ignore it.
         if (ret == -EOPNOTSUPP && !isAtLeastT()) return nullptr;
         LOG(ERROR) << __func__ << ": ADnsHelper_init failed " << strerror(-ret);
-        abort();
+        return nullptr;
     }
 
     // Related BPF maps were only mainlined from T.
