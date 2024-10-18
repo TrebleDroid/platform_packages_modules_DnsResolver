@@ -669,6 +669,7 @@ typedef int (*InitFn)();
 typedef int (*IsUidBlockedFn)(uid_t, bool);
 
 IsUidBlockedFn ADnsHelper_isUidNetworkingBlocked;
+static int init_failed = 0;
 
 IsUidBlockedFn resolveIsUidNetworkingBlockedFn() {
     // Related BPF maps were mainlined from T.
@@ -691,6 +692,7 @@ IsUidBlockedFn resolveIsUidNetworkingBlockedFn() {
     const int ret = (*ADnsHelper_init)();
     if (ret) {
         LOG(ERROR) << __func__ << ": ADnsHelper_init failed " << strerror(-ret);
+        init_failed = 1;
     }
 
     IsUidBlockedFn f =
@@ -704,6 +706,7 @@ IsUidBlockedFn resolveIsUidNetworkingBlockedFn() {
 }
 
 bool isUidNetworkingBlocked(uid_t uid, unsigned netId) {
+    if (init_failed) return true;
     if (!ADnsHelper_isUidNetworkingBlocked) return false;
 
     // The enforceDnsUid is an OEM feature that sets DNS packet with AID_DNS instead of the
